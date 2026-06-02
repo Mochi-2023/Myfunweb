@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Joanne Leong — Hyrox Obsessed</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --coral:   #FF6B6B;
+      --peach:   #FFB347;
+      --cream:   #FFF8F0;
+      --brown:   #5C3D2E;
+      --mid:     #8B6355;
+      --light:   #FDEBD0;
+      --white:   #FFFFFF;
+      --shadow:  0 4px 20px rgba(92,61,46,0.12);
+      --radius:  16px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--brown);
+      line-height: 1.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,248,240,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 2px solid var(--light);
+      padding: 0.75rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { font-weight: 800; font-size: 1.2rem; color: var(--coral); letter-spacing: -0.5px; }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a {
+      text-decoration: none; color: var(--mid); font-weight: 600;
+      font-size: 0.95rem; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--coral); }
+
+    /* ── Hero / About ── */
+    .hero {
+      max-width: 900px; margin: 4rem auto 2rem;
+      padding: 0 1.5rem;
+      display: flex; align-items: center; gap: 3rem;
+      flex-wrap: wrap;
+    }
+    .hero-img-wrap {
+      flex-shrink: 0;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      border: 5px solid var(--coral);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: var(--light);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .hero-img-placeholder {
+      font-size: 4rem;
+      user-select: none;
+    }
+    .hero-text h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      color: var(--brown);
+      line-height: 1.15;
+    }
+    .hero-text h1 span { color: var(--coral); }
+    .hero-text .tagline {
+      margin-top: 0.5rem;
+      font-size: 1.1rem; font-weight: 600;
+      color: var(--mid);
+    }
+    .hero-text p {
+      margin-top: 1rem; font-size: 1rem; color: var(--mid);
+      max-width: 480px;
+    }
+    .badge-row {
+      display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.2rem;
+    }
+    .badge {
+      background: var(--light); border: 2px solid var(--peach);
+      color: var(--brown); font-size: 0.82rem; font-weight: 700;
+      padding: 0.3rem 0.8rem; border-radius: 999px;
+    }
+
+    /* ── Section titles ── */
+    .section { max-width: 900px; margin: 3rem auto; padding: 0 1.5rem; }
+    .section-title {
+      font-size: 1.6rem; font-weight: 800; color: var(--brown);
+      margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .section-title::after {
+      content: ''; flex: 1; height: 2px; background: var(--light);
+    }
+
+    /* ── Cards ── */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; }
+    .card {
+      background: var(--white); border-radius: var(--radius);
+      padding: 1.4rem; box-shadow: var(--shadow);
+      border-top: 4px solid var(--coral);
+      transition: transform 0.2s;
+    }
+    .card:hover { transform: translateY(-4px); }
+    .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .card p { font-size: 0.9rem; color: var(--mid); }
+    .card .icon { font-size: 1.8rem; margin-bottom: 0.6rem; }
+
+    /* ── Hangman Game ── */
+    #game { background: var(--white); border-radius: var(--radius); padding: 2rem; box-shadow: var(--shadow); }
+
+    .game-header { text-align: center; margin-bottom: 1.5rem; }
+    .game-header p { color: var(--mid); font-size: 0.9rem; margin-top: 0.3rem; }
+
+    /* SVG Canvas */
+    .gallows-wrap { display: flex; justify-content: center; margin-bottom: 1.2rem; }
+    #gallows { width: 180px; height: 180px; }
+
+    /* Word display */
+    .word-display {
+      display: flex; flex-wrap: wrap; gap: 0.4rem;
+      justify-content: center; margin: 1rem 0;
+    }
+    .letter-box {
+      width: 2rem; height: 2.4rem;
+      border-bottom: 3px solid var(--coral);
+      display: flex; align-items: flex-end; justify-content: center;
+      font-size: 1.3rem; font-weight: 800; color: var(--brown);
+      text-transform: uppercase; line-height: 1;
+      transition: color 0.2s;
+    }
+
+    /* Hint */
+    #hint-text {
+      text-align: center; font-size: 0.9rem; color: var(--mid);
+      font-style: italic; margin-bottom: 0.8rem; min-height: 1.2rem;
+    }
+
+    /* Wrong letters */
+    .wrong-letters {
+      text-align: center; font-size: 0.85rem; color: #c0392b;
+      font-weight: 600; min-height: 1.4rem; margin-bottom: 0.5rem;
+    }
+
+    /* Mistakes counter */
+    .mistakes-bar {
+      display: flex; justify-content: center; gap: 0.4rem; margin-bottom: 1.2rem;
+    }
+    .heart {
+      font-size: 1.2rem;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .heart.lost { opacity: 0.2; transform: scale(0.8); }
+
+    /* Keyboard */
+    .keyboard { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; max-width: 500px; margin: 0 auto 1.2rem; }
+    .key {
+      width: 2.4rem; height: 2.4rem;
+      background: var(--light); border: 2px solid var(--peach);
+      border-radius: 8px; font-size: 0.85rem; font-weight: 700;
+      color: var(--brown); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, transform 0.1s, opacity 0.2s;
+      text-transform: uppercase;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .key:hover:not(:disabled) { background: var(--peach); transform: scale(1.08); }
+    .key:active:not(:disabled) { transform: scale(0.95); }
+    .key:disabled { opacity: 0.35; cursor: not-allowed; }
+    .key.correct { background: #a8edba; border-color: #27ae60; color: #1e8449; }
+    .key.wrong   { background: #f5b7b1; border-color: #e74c3c; color: #c0392b; }
+
+    /* Game status message */
+    #status-msg {
+      text-align: center; font-size: 1.1rem; font-weight: 700;
+      min-height: 1.6rem; margin-bottom: 0.8rem;
+    }
+    #status-msg.win  { color: #27ae60; }
+    #status-msg.lose { color: #c0392b; }
+
+    /* Buttons */
+    .btn {
+      display: inline-block; padding: 0.6rem 1.4rem;
+      background: var(--coral); color: var(--white);
+      border: none; border-radius: 999px; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; transition: background 0.2s, transform 0.1s;
+    }
+    .btn:hover { background: #e05555; transform: scale(1.04); }
+    .btn:active { transform: scale(0.97); }
+    .btn-row { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
+    .btn-hint { background: var(--peach); }
+    .btn-hint:hover { background: #e09030; }
+
+    /* Word revealed on loss */
+    #word-reveal { text-align: center; font-size: 0.9rem; color: var(--mid); margin-top: 0.5rem; min-height: 1.2rem; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center; padding: 2rem 1.5rem;
+      color: var(--mid); font-size: 0.85rem;
+      border-top: 2px solid var(--light); margin-top: 3rem;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 600px) {
+      .hero { flex-direction: column; align-items: center; text-align: center; gap: 1.5rem; }
+      .badge-row { justify-content: center; }
+      .hero-text p { margin: 0.8rem auto 0; }
+      .key { width: 2rem; height: 2rem; font-size: 0.75rem; }
+      .letter-box { width: 1.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <div class="nav-logo">Joanne 🏃‍♀️</div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#passions">Passions</a>
+    <a href="#game">Game</a>
+  </div>
+</nav>
+
+<!-- Hero / About -->
+<section id="about" class="hero">
+  <div class="hero-img-wrap" id="img-wrap">
+    <!-- Profile image will load if present, otherwise shows emoji -->
+    <img id="profile-img" src="" alt="Joanne" onerror="this.style.display='none'; document.getElementById('img-placeholder').style.display='flex';" style="display:none;" />
+    <div class="hero-img-placeholder" id="img-placeholder">🏋️‍♀️</div>
+  </div>
+  <div class="hero-text">
+    <h1>Hi, I'm <span>Joanne!</span> 👋</h1>
+    <div class="tagline">🔥 Hyrox Obsessed · Always Moving · Never Stopping</div>
+    <p>
+      Life is better when you're pushing limits. Whether I'm on the rowing machine,
+      smashing a sled push, or grinding through wall balls — I live for the burn.
+      Hyrox isn't just a race, it's a lifestyle. Come see what I'm about!
+    </p>
+    <div class="badge-row">
+      <span class="badge">🏆 Hyrox Racer</span>
+      <span class="badge">💪 Functional Fitness</span>
+      <span class="badge">🎽 Always Training</span>
+      <span class="badge">☕ Fuelled by Coffee</span>
+    </div>
+  </div>
+</section>
+
+<!-- Passions -->
+<section id="passions" class="section">
+  <h2 class="section-title">⚡ What Drives Me</h2>
+  <div class="card-grid">
+    <div class="card">
+      <div class="icon">🏃‍♀️</div>
+      <h3>Hyrox Racing</h3>
+      <p>Combining running with 8 functional workout stations. The ultimate full-body challenge.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🏋️</div>
+      <h3>Functional Training</h3>
+      <p>Rowing, sled pushes, burpee broad jumps — training that actually makes life better.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🥗</div>
+      <h3>Fuelling Right</h3>
+      <p>Performance starts in the kitchen. Clean eating that supports every training session.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🤝</div>
+      <h3>Community</h3>
+      <p>The Hyrox community is incredible — supportive, driven, and always ready to cheer you on.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Hangman Game -->
+<section id="game" class="section">
+  <h2 class="section-title">🎮 Hyrox Hangman</h2>
+  <div id="game">
+    <div class="game-header">
+      <p>Guess the Hyrox-themed word! You have 6 chances.</p>
+    </div>
+
+    <!-- Gallows SVG -->
+    <div class="gallows-wrap">
+      <svg id="gallows" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+        <!-- Static structure -->
+        <line x1="20" y1="170" x2="160" y2="170" stroke="#5C3D2E" stroke-width="4" stroke-linecap="round"/>
+        <line x1="60" y1="170" x2="60" y2="10"  stroke="#5C3D2E" stroke-width="4" stroke-linecap="round"/>
+        <line x1="60" y1="10"  x2="120" y2="10" stroke="#5C3D2E" stroke-width="4" stroke-linecap="round"/>
+        <line x1="120" y1="10" x2="120" y2="30" stroke="#5C3D2E" stroke-width="4" stroke-linecap="round"/>
+        <!-- Body parts (hidden by default) -->
+        <circle id="h-head" cx="120" cy="45" r="14" stroke="#FF6B6B" stroke-width="3" fill="none" style="display:none"/>
+        <line   id="h-body" x1="120" y1="59" x2="120" y2="110" stroke="#FF6B6B" stroke-width="3" stroke-linecap="round" style="display:none"/>
+        <line   id="h-la"   x1="120" y1="75" x2="95"  y2="95"  stroke="#FF6B6B" stroke-width="3" stroke-linecap="round" style="display:none"/>
+        <line   id="h-ra"   x1="120" y1="75" x2="145" y2="95"  stroke="#FF6B6B" stroke-width="3" stroke-linecap="round" style="display:none"/>
+        <line   id="h-ll"   x1="120" y1="110" x2="100" y2="140" stroke="#FF6B6B" stroke-width="3" stroke-linecap="round" style="display:none"/>
+        <line   id="h-rl"   x1="120" y1="110" x2="140" y2="140" stroke="#FF6B6B" stroke-width="3" stroke-linecap="round" style="display:none"/>
+      </svg>
+    </div>
+
+    <!-- Hint text -->
+    <div id="hint-text">💡 Click "Hint" for a clue!</div>
+
+    <!-- Word blanks -->
+    <div class="word-display" id="word-display"></div>
+
+    <!-- Wrong letters -->
+    <div class="wrong-letters" id="wrong-letters"></div>
+
+    <!-- Hearts / lives -->
+    <div class="mistakes-bar" id="hearts"></div>
+
+    <!-- Status -->
+    <div id="status-msg"></div>
+    <div id="word-reveal"></div>
+
+    <!-- On-screen keyboard -->
+    <div class="keyboard" id="keyboard"></div>
+
+    <!-- Action buttons -->
+    <div class="btn-row">
+      <button class="btn btn-hint" id="btn-hint" onclick="useHint()">💡 Hint</button>
+      <button class="btn" id="btn-new" onclick="newGame()">🔄 New Word</button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p>Made with ❤️ and a lot of sled pushes · Joanne Leong © 2026</p>
+</footer>
+
+<!-- Profile image loader -->
+<script>
+  // Try common image filenames
+  const imageNames = ['profile.jpg','profile.jpeg','profile.png','me.jpg','me.jpeg','me.png',
+    'photo.jpg','photo.jpeg','photo.png','avatar.jpg','avatar.jpeg','avatar.png',
+    'joanne.jpg','joanne.jpeg','joanne.png'];
+  let idx = 0;
+  function tryNextImage() {
+    if (idx >= imageNames.length) return;
+    const img = document.getElementById('profile-img');
+    img.src = imageNames[idx++];
+    img.style.display = 'block';
+  }
+  tryNextImage();
+</script>
+
+<!-- Hangman Game Logic -->
+<script>
+  const WORDS = [
+    { word: "HYROX",         hint: "The race that combines running with functional fitness" },
+    { word: "ROWING",        hint: "Station 1 — pull hard on the ergometer!" },
+    { word: "SLEDS",         hint: "Push or pull these weighted platforms" },
+    { word: "BURPEE",        hint: "Drop, press up, jump — a classic movement" },
+    { word: "WALLBALL",      hint: "Squat, throw, catch — hits the ball target high on the wall" },
+    { word: "LUNGES",        hint: "Weighted walking movement that burns your legs" },
+    { word: "SKIERG",        hint: "Pull the cables down like you're cross-country skiing" },
+    { word: "SANDBAG",       hint: "Heavy bag you carry or hold during some stations" },
+    { word: "FARMER",        hint: "___ carry — grip those kettlebells and walk!" },
+    { word: "KETTLEBELL",    hint: "Iron ball with a handle — used for swings and carries" },
+    { word: "ENDURANCE",     hint: "What you need to finish all 8 stations" },
+    { word: "FUNCTIONAL",    hint: "___ fitness — training that mimics real-life movement" },
+    { word: "TRANSITION",    hint: "The short run between workout stations" },
+    { word: "PODIUM",        hint: "The top-3 finishers stand here" },
+    { word: "OBSTACLE",      hint: "A challenge or station to overcome in the race" },
+    { word: "PROTOCOL",      hint: "The race rules and station order follow this" },
+    { word: "MARATHON",      hint: "Classic 42km run — Hyrox is the gym sport version" },
+    { word: "STRENGTH",      hint: "You need this plus cardio to beat Hyrox" },
+  ];
+
+  const BODY_PARTS = ['h-head','h-body','h-la','h-ra','h-ll','h-rl'];
+  const MAX_WRONG = 6;
+
+  let currentWord = '';
+  let currentHint = '';
+  let guessed = new Set();
+  let wrongCount = 0;
+  let hintUsed = false;
+  let gameOver = false;
+
+  function pickWord() {
+    const w = WORDS[Math.floor(Math.random() * WORDS.length)];
+    return w;
+  }
+
+  function newGame() {
+    const entry = pickWord();
+    currentWord = entry.word;
+    currentHint = entry.hint;
+    guessed = new Set();
+    wrongCount = 0;
+    hintUsed = false;
+    gameOver = false;
+
+    // Reset gallows
+    BODY_PARTS.forEach(id => document.getElementById(id).style.display = 'none');
+
+    // Reset UI
+    document.getElementById('status-msg').textContent = '';
+    document.getElementById('status-msg').className = '';
+    document.getElementById('word-reveal').textContent = '';
+    document.getElementById('hint-text').textContent = '💡 Click "Hint" for a clue!';
+    document.getElementById('wrong-letters').textContent = '';
+    document.getElementById('btn-hint').disabled = false;
+
+    renderWordDisplay();
+    renderHearts();
+    renderKeyboard();
+  }
+
+  function renderWordDisplay() {
+    const container = document.getElementById('word-display');
+    container.innerHTML = '';
+    for (const ch of currentWord) {
+      const box = document.createElement('div');
+      box.className = 'letter-box';
+      if (guessed.has(ch)) {
+        box.textContent = ch;
+        box.style.color = '#27ae60';
+      }
+      container.appendChild(box);
+    }
+  }
+
+  function renderHearts() {
+    const container = document.getElementById('hearts');
+    container.innerHTML = '';
+    for (let i = 0; i < MAX_WRONG; i++) {
+      const span = document.createElement('span');
+      span.className = 'heart' + (i < wrongCount ? ' lost' : '');
+      span.textContent = i < wrongCount ? '🖤' : '❤️';
+      container.appendChild(span);
+    }
+  }
+
+  function renderKeyboard() {
+    const container = document.getElementById('keyboard');
+    container.innerHTML = '';
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter => {
+      const btn = document.createElement('button');
+      btn.className = 'key';
+      btn.textContent = letter;
+      btn.id = 'key-' + letter;
+      if (guessed.has(letter)) {
+        btn.disabled = true;
+        btn.classList.add(currentWord.includes(letter) ? 'correct' : 'wrong');
+      }
+      btn.addEventListener('click', () => guess(letter));
+      // Touch support
+      btn.addEventListener('touchend', (e) => { e.preventDefault(); guess(letter); });
+      container.appendChild(btn);
+    });
+  }
+
+  function guess(letter) {
+    if (gameOver || guessed.has(letter)) return;
+    guessed.add(letter);
+
+    const keyEl = document.getElementById('key-' + letter);
+    if (keyEl) keyEl.disabled = true;
+
+    if (currentWord.includes(letter)) {
+      if (keyEl) keyEl.classList.add('correct');
+      renderWordDisplay();
+      checkWin();
+    } else {
+      if (keyEl) keyEl.classList.add('wrong');
+      wrongCount++;
+      // Show next body part
+      const part = document.getElementById(BODY_PARTS[wrongCount - 1]);
+      if (part) part.style.display = 'block';
+      // Update wrong letters display
+      const wrongs = [...guessed].filter(l => !currentWord.includes(l));
+      document.getElementById('wrong-letters').textContent = wrongs.length ? '❌ ' + wrongs.join(' ') : '';
+      renderHearts();
+      checkLoss();
+    }
+  }
+
+  function checkWin() {
+    const allGuessed = [...currentWord].every(ch => guessed.has(ch));
+    if (allGuessed) {
+      gameOver = true;
+      const msg = document.getElementById('status-msg');
+      msg.textContent = '🎉 Amazing! You got it!';
+      msg.className = 'win';
+      disableAll();
+    }
+  }
+
+  function checkLoss() {
+    if (wrongCount >= MAX_WRONG) {
+      gameOver = true;
+      const msg = document.getElementById('status-msg');
+      msg.textContent = '💀 Out of chances! Better luck next time!';
+      msg.className = 'lose';
+      document.getElementById('word-reveal').textContent = 'The word was: ' + currentWord;
+      // Reveal full word
+      const boxes = document.getElementById('word-display').children;
+      [...currentWord].forEach((ch, i) => {
+        if (!guessed.has(ch)) {
+          boxes[i].textContent = ch;
+          boxes[i].style.color = '#c0392b';
+        }
+      });
+      disableAll();
+    }
+  }
+
+  function disableAll() {
+    document.querySelectorAll('.key').forEach(b => b.disabled = true);
+    document.getElementById('btn-hint').disabled = true;
+  }
+
+  function useHint() {
+    if (hintUsed || gameOver) return;
+    hintUsed = true;
+    document.getElementById('hint-text').textContent = '💡 ' + currentHint;
+    document.getElementById('btn-hint').disabled = true;
+  }
+
+  // Keyboard input
+  document.addEventListener('keydown', (e) => {
+    const letter = e.key.toUpperCase();
+    if (/^[A-Z]$/.test(letter) && !gameOver) {
+      guess(letter);
+    }
+  });
+
+  // Start!
+  newGame();
+</script>
+
+</body>
+</html>
